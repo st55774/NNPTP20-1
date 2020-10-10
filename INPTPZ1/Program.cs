@@ -1,18 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
 using System.Drawing;
-using System.Drawing.Design;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
-using System.Drawing.Printing;
-using System.Drawing.Text;
-using System.Drawing.Drawing2D;
-using System.Linq.Expressions;
-using System.Threading;
+
+using INPTPZ1.BitmapImage;
 using INPTPZ1.Mathematics;
 
 namespace INPTPZ1
@@ -25,26 +15,11 @@ namespace INPTPZ1
     {
         static void Main(string[] args)
         {
-            int[] intargs = new int[2];
-            for (int i = 0; i < intargs.Length; i++)
-            {
-                intargs[i] = int.Parse(args[i]);
-            }
-            double[] doubleargs = new double[4];
-            for (int i = 0; i < doubleargs.Length; i++)
-            {
-                doubleargs[i] = double.Parse(args[i + 2]);
-            }
-            string output = args[6];
-            // TODO: add parameters from args?
-            Bitmap bmp = new Bitmap(intargs[0], intargs[1]);
-            double xmin = doubleargs[0];
-            double xmax = doubleargs[1];
-            double ymin = doubleargs[2];
-            double ymax = doubleargs[3];
-
-            double xstep = (xmax - xmin) / intargs[0];
-            double ystep = (ymax - ymin) / intargs[1];
+            var bitmapParameters = ParseBitmapParametersFromCommandLine(args);
+            
+            Bitmap bmp = new Bitmap(bitmapParameters.Width, bitmapParameters.Height);
+            int xstep = (bitmapParameters.XMax - bitmapParameters.XMin) / bitmapParameters.Width;
+            int ystep = (bitmapParameters.YMax - bitmapParameters.YMin) / bitmapParameters.Height;
 
             List<Cplx> koreny = new List<Cplx>();
             // TODO: poly should be parameterised?
@@ -68,13 +43,13 @@ namespace INPTPZ1
 
             // TODO: cleanup!!!
             // for every pixel in image...
-            for (int i = 0; i < intargs[0]; i++)
+            for (int i = 0; i < bitmapParameters.Width; i++)
             {
-                for (int j = 0; j < intargs[1]; j++)
+                for (int j = 0; j < bitmapParameters.Height; j++)
                 {
                     // find "world" coordinates of pixel
-                    double y = ymin + i * ystep;
-                    double x = xmin + j * xstep;
+                    double y = bitmapParameters.YMin + i * ystep;
+                    double x = bitmapParameters.XMin + j * xstep;
 
                     Cplx ox = new Cplx()
                     {
@@ -147,150 +122,22 @@ namespace INPTPZ1
             //    }
             //}
 
-                    bmp.Save(output ?? "../../../out.png");
+                    bmp.Save(bitmapParameters.Output ?? "../../../out.png");
             //Console.ReadKey();
         }
-    }
 
-    namespace Mathematics
-    {
-        class Poly
-        {
-            public List<Cplx> Coe { get; set; }
+        private static BitmapParameters ParseBitmapParametersFromCommandLine(string[] arguments) {
+            BitmapParameters parameters = new BitmapParameters();
 
-            public Poly() => Coe = new List<Cplx>();
+            parameters.Width = Int32.Parse(arguments[0]);
+            parameters.Height = Int32.Parse(arguments[1]);
+            parameters.XMin = Int32.Parse(arguments[2]);
+            parameters.XMax = Int32.Parse(arguments[3]);
+            parameters.YMin = Int32.Parse(arguments[4]);
+            parameters.YMax = Int32.Parse(arguments[5]);
+            parameters.Output = arguments[6];
 
-            public Poly Derive()
-            {
-                Poly p = new Poly();
-                for (int i = 1; i < Coe.Count; i++)
-                {
-                    p.Coe.Add(Coe[i].Multiply(new Cplx() { Re = i }));
-                }
-
-                return p;
-            }
-
-            public Cplx Eval(Cplx x)
-            {
-                Cplx s = Cplx.Zero;
-                for (int i = 0; i < Coe.Count; i++)
-                {
-                    Cplx coef = Coe[i];
-                    Cplx bx = x;
-                    int power = i;
-
-                    if (i > 0)
-                    {
-                        for (int j = 0; j < power - 1; j++)
-                            bx = bx.Multiply(x);
-
-                        coef = coef.Multiply(bx);
-                    }
-
-                    s = s.Add(coef);
-                }
-
-                return s;
-            }
-
-            public override string ToString()
-            {
-                string s = "";
-                for (int i = 0; i < Coe.Count; i++)
-                {
-                    s += Coe[i];
-                    if (i > 0)
-                    {
-                        for (int j = 0; j < i; j++)
-                        {
-                            s += "x";
-                        }
-                    }
-                    s += " + ";
-                }
-                return s;
-            }
-        }
-
-        public class Cplx
-        {
-            public double Re { get; set; }
-            public float Imaginari { get; set; }
-
-            public override bool Equals(object obj)
-            {
-                if (obj is Cplx)
-                {
-                    Cplx x = obj as Cplx;
-                    return x.Re == Re && x.Imaginari == Imaginari;
-                }
-                return base.Equals(obj);
-            }
-
-            public readonly static Cplx Zero = new Cplx()
-            {
-                Re = 0,
-                Imaginari = 0
-            };
-
-            public Cplx Multiply(Cplx b)
-            {
-                Cplx a = this;
-                // aRe*bRe + aRe*bIm*i + aIm*bRe*i + aIm*bIm*i*i
-                return new Cplx()
-                {
-                    Re = a.Re * b.Re - a.Imaginari * b.Imaginari,
-                    Imaginari = (float)(a.Re * b.Imaginari + a.Imaginari * b.Re)
-                };
-            }
-            public double GetAbS()
-            {
-                return Math.Sqrt( Re * Re + Imaginari * Imaginari);
-            }
-
-            public Cplx Add(Cplx b)
-            {
-                Cplx a = this;
-                return new Cplx()
-                {
-                    Re = a.Re + b.Re,
-                    Imaginari = a.Imaginari + b.Imaginari
-                };
-            }
-            public double GetAngleInDegrees()
-            {
-                return Math.Atan(Imaginari / Re);
-            }
-            public Cplx Subtract(Cplx b)
-            {
-                Cplx a = this;
-                return new Cplx()
-                {
-                    Re = a.Re - b.Re,
-                    Imaginari = a.Imaginari - b.Imaginari
-                };
-            }
-
-            public override string ToString()
-            {
-                return $"({Re} + {Imaginari}i)";
-            }
-
-            internal Cplx Divide(Cplx b)
-            {
-                // (aRe + aIm*i) / (bRe + bIm*i)
-                // ((aRe + aIm*i) * (bRe - bIm*i)) / ((bRe + bIm*i) * (bRe - bIm*i))
-                //  bRe*bRe - bIm*bIm*i*i
-                var tmp = this.Multiply(new Cplx() { Re = b.Re, Imaginari = -b.Imaginari });
-                var tmp2 = b.Re * b.Re + b.Imaginari * b.Imaginari;
-
-                return new Cplx()
-                {
-                    Re = tmp.Re / tmp2,
-                    Imaginari = (float)(tmp.Imaginari / tmp2)
-                };
-            }
+            return parameters;
         }
     }
 }
