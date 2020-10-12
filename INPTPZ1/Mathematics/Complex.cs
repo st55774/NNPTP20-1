@@ -11,34 +11,6 @@ namespace INPTPZ1.Mathematics
 
         public static readonly Complex Zero = new Complex {RealPart = 0, ImaginaryPart = 0};
 
-        public override bool Equals(object obj)
-        {
-            if (obj is Complex complex)
-                return Math.Abs(complex.RealPart - RealPart) < TOLERANCE && 
-                       Math.Abs(complex.ImaginaryPart - ImaginaryPart) < TOLERANCE;
-            return base.Equals(obj);
-        }
-        
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (RealPart.GetHashCode() * 397) ^ ImaginaryPart.GetHashCode();
-            }
-        }
-
-        public Complex()
-        {
-            RealPart = 0;
-            ImaginaryPart = 0;
-        }
-
-        public Complex(double realPart, double imaginaryPart)
-        {
-            RealPart = realPart;
-            ImaginaryPart = imaginaryPart;
-        }
-
         public Complex Add(Complex adder)
         {
             return new Complex
@@ -91,6 +63,22 @@ namespace INPTPZ1.Mathematics
         public override string ToString()
         {
             return $"({RealPart:+#;-#;0.00} {ImaginaryPart:+#;-#;0.00}i)";
+        }
+        
+        public override bool Equals(object obj)
+        {
+            if (obj is Complex complex)
+                return Math.Abs(complex.RealPart - RealPart) < TOLERANCE && 
+                       Math.Abs(complex.ImaginaryPart - ImaginaryPart) < TOLERANCE;
+            return base.Equals(obj);
+        }
+        
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (RealPart.GetHashCode() * 397) ^ ImaginaryPart.GetHashCode();
+            }
         }
     }
 }

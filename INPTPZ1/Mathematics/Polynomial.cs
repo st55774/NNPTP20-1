@@ -2,29 +2,28 @@
 
 namespace INPTPZ1.Mathematics
 {
-    class Poly
+    public class Polynomial
     {
-        public List<Complex> Coe { get; set; }
+        public List<Complex> Complexes { get; } = new List<Complex>();
 
-        public Poly() => Coe = new List<Complex>();
+        public Polynomial Derive() {
+            Polynomial derived = new Polynomial();
+            int index = 1;
+            
+            Complexes.GetRange(index, Complexes.Count).ForEach(current => {
+                Complex multiple = new Complex {RealPart = index++, ImaginaryPart = 0};
+                derived.Complexes.Add(current.Multiply(multiple));
+            });
 
-        public Poly Derive()
-        {
-            Poly p = new Poly();
-            for (int i = 1; i < Coe.Count; i++)
-            {
-                p.Coe.Add(Coe[i].Multiply(new Complex() { RealPart = i }));
-            }
-
-            return p;
+            return derived;
         }
 
         public Complex Eval(Complex x)
         {
             Complex s = Complex.Zero;
-            for (int i = 0; i < Coe.Count; i++)
+            for (int i = 0; i < Complexes.Count; i++)
             {
-                Complex coef = Coe[i];
+                Complex coef = Complexes[i];
                 Complex bx = x;
                 int power = i;
 
@@ -45,9 +44,9 @@ namespace INPTPZ1.Mathematics
         public override string ToString()
         {
             string s = "";
-            for (int i = 0; i < Coe.Count; i++)
+            for (int i = 0; i < Complexes.Count; i++)
             {
-                s += Coe[i];
+                s += Complexes[i];
                 if (i > 0)
                 {
                     for (int j = 0; j < i; j++)
