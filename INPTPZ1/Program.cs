@@ -21,14 +21,14 @@ namespace INPTPZ1
             int xstep = (bitmapParameters.XMax - bitmapParameters.XMin) / bitmapParameters.Width;
             int ystep = (bitmapParameters.YMax - bitmapParameters.YMin) / bitmapParameters.Height;
 
-            List<Cplx> koreny = new List<Cplx>();
+            List<Complex> koreny = new List<Complex>();
             // TODO: poly should be parameterised?
             Poly p = new Poly();
-            p.Coe.Add(new Cplx() { Re = 1 });
-            p.Coe.Add(Cplx.Zero);
-            p.Coe.Add(Cplx.Zero);
+            p.Coe.Add(new Complex() { RealPart = 1 });
+            p.Coe.Add(Complex.Zero);
+            p.Coe.Add(Complex.Zero);
             //p.Coe.Add(Cplx.Zero);
-            p.Coe.Add(new Cplx() { Re = 1 });
+            p.Coe.Add(new Complex() { RealPart = 1 });
             Poly pd = p.Derive();
 
             Console.WriteLine(p);
@@ -51,16 +51,16 @@ namespace INPTPZ1
                     double y = bitmapParameters.YMin + i * ystep;
                     double x = bitmapParameters.XMin + j * xstep;
 
-                    Cplx ox = new Cplx()
+                    Complex ox = new Complex()
                     {
-                        Re = x,
-                        Imaginari = (float)(y)
+                        RealPart = x,
+                        ImaginaryPart = (float)(y)
                     };
 
-                    if (ox.Re == 0)
-                        ox.Re = 0.0001;
-                    if (ox.Imaginari == 0)
-                        ox.Imaginari = 0.0001f;
+                    if (ox.RealPart == 0)
+                        ox.RealPart = 0.0001;
+                    if (ox.ImaginaryPart == 0)
+                        ox.ImaginaryPart = 0.0001f;
 
                     //Console.WriteLine(ox);
 
@@ -72,7 +72,7 @@ namespace INPTPZ1
                         ox = ox.Subtract(diff);
 
                         //Console.WriteLine($"{q} {ox} -({diff})");
-                        if (Math.Pow(diff.Re, 2) + Math.Pow(diff.Imaginari, 2) >= 0.5)
+                        if (Math.Pow(diff.RealPart, 2) + Math.Pow(diff.ImaginaryPart, 2) >= 0.5)
                         {
                             q--;
                         }
@@ -86,7 +86,7 @@ namespace INPTPZ1
                     var id = 0;
                     for (int w = 0; w <koreny.Count;w++)
                     {
-                        if (Math.Pow(ox.Re- koreny[w].Re, 2) + Math.Pow(ox.Imaginari - koreny[w].Imaginari, 2) <= 0.01)
+                        if (Math.Pow(ox.RealPart- koreny[w].RealPart, 2) + Math.Pow(ox.ImaginaryPart - koreny[w].ImaginaryPart, 2) <= 0.01)
                         {
                             known = true;
                             id = w;

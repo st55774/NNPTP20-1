@@ -4,28 +4,28 @@ namespace INPTPZ1.Mathematics
 {
     class Poly
     {
-        public List<Cplx> Coe { get; set; }
+        public List<Complex> Coe { get; set; }
 
-        public Poly() => Coe = new List<Cplx>();
+        public Poly() => Coe = new List<Complex>();
 
         public Poly Derive()
         {
             Poly p = new Poly();
             for (int i = 1; i < Coe.Count; i++)
             {
-                p.Coe.Add(Coe[i].Multiply(new Cplx() { Re = i }));
+                p.Coe.Add(Coe[i].Multiply(new Complex() { RealPart = i }));
             }
 
             return p;
         }
 
-        public Cplx Eval(Cplx x)
+        public Complex Eval(Complex x)
         {
-            Cplx s = Cplx.Zero;
+            Complex s = Complex.Zero;
             for (int i = 0; i < Coe.Count; i++)
             {
-                Cplx coef = Coe[i];
-                Cplx bx = x;
+                Complex coef = Coe[i];
+                Complex bx = x;
                 int power = i;
 
                 if (i > 0)
