@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 
 namespace INPTPZ1.Mathematics
 {
@@ -18,45 +19,42 @@ namespace INPTPZ1.Mathematics
             return derived;
         }
 
-        public Complex Eval(Complex x)
+        public Complex Evaluate(Complex evaluation)
         {
-            Complex s = Complex.Zero;
-            for (int i = 0; i < Complexes.Count; i++)
-            {
-                Complex coef = Complexes[i];
-                Complex bx = x;
-                int power = i;
+            Complex evaluated = Complex.Zero;
+            int level = 0;
+            
+            Complexes.ForEach(coefficient => {
+                evaluated = evaluated.Add(level > 0 ? CalculateCoefficientToAdd(coefficient, evaluation,level) : coefficient);
+                level++;
+            });
 
-                if (i > 0)
-                {
-                    for (int j = 0; j < power - 1; j++)
-                        bx = bx.Multiply(x);
+            return evaluated;
+        }
 
-                    coef = coef.Multiply(bx);
-                }
-
-                s = s.Add(coef);
-            }
-
-            return s;
+        private static Complex CalculateCoefficientToAdd(Complex coefficient, Complex evaluation, int level)
+        {
+            Complex evaluationIndex = evaluation;
+            
+            for (int i = 0; i < level - 1; i++)
+                evaluationIndex = evaluationIndex.Multiply(evaluation);
+            
+            return coefficient.Multiply(evaluationIndex);
         }
 
         public override string ToString()
         {
-            string s = "";
-            for (int i = 0; i < Complexes.Count; i++)
+            StringBuilder builder = new StringBuilder();
+            int level = 0;
+            
+            Complexes.ForEach(complex =>
             {
-                s += Complexes[i];
-                if (i > 0)
-                {
-                    for (int j = 0; j < i; j++)
-                    {
-                        s += "x";
-                    }
-                }
-                s += " + ";
-            }
-            return s;
+                builder.Append(complex);
+                builder.Append(level > 0 ? $"X^{level + 1} + " : " + ");
+                level++;
+            });
+
+            return builder.ToString();
         }
     }
 }

@@ -87,7 +87,7 @@ namespace INPTPZ1
                     int it = 0;
                     for (int q = 0; q < 30; q++)
                     {
-                        var diff = polynomial1.Eval(ox).Divide(polynomialDerive1.Eval(ox));
+                        var diff = polynomial1.Evaluate(ox).Divide(polynomialDerive1.Evaluate(ox));
                         ox = ox.Subtract(diff);
 
                         //Console.WriteLine($"{q} {ox} -({diff})");
