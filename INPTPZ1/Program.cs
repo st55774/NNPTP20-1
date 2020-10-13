@@ -12,7 +12,9 @@ namespace INPTPZ1
     /// </summary>
     class Program
     {
-        public static List<Complex> Initial()
+        private const int NewtonUpperIteration = 30;
+
+        private static List<Complex> Initial()
         {
             return new List<Complex>
             {
@@ -22,8 +24,7 @@ namespace INPTPZ1
             };
         }
 
-        public static readonly Color[] InitialColors = new[]
-        {
+        private static readonly Color[] ColorPalette = {
             Color.Red, Color.Blue, Color.Green, Color.Yellow, Color.Orange,
             Color.Fuchsia, Color.Gold, Color.Cyan, Color.Magenta
         };
@@ -31,83 +32,46 @@ namespace INPTPZ1
         static void Main(string[] args)
         {
             var bitmapParameters = ParseBitmapParametersFromCommandLine(args);
-            Bitmap bmp = new Bitmap(bitmapParameters.Width, bitmapParameters.Height);
-
+            
             Polynomial polynomial = new Polynomial();
             polynomial.Complexes.AddRange(Initial());
-            Polynomial polynomialDerive = polynomial.Derive();
 
-            List<Complex> koreny = new List<Complex>();
-
-            // TODO: cleanup!!!
-            // for every pixel in image...
-            CreateImage(bitmapParameters, polynomial, polynomialDerive, koreny, bmp, out var i1);
-
-            // TODO: delete I suppose...
-            //for (int i = 0; i < 300; i++)
-            //{
-            //    for (int j = 0; j < 300; j++)
-            //    {
-            //        Color c = bmp.GetPixel(j, i);
-            //        int nv = (int)Math.Floor(c.R * (255.0 / maxid));
-            //        bmp.SetPixel(j, i, Color.FromArgb(nv, nv, nv));
-            //    }
-            //}
-
-            bmp.Save(bitmapParameters.Output ?? "../../../out.png");
+            Bitmap bmp = CreateImage(bitmapParameters, polynomial);
+            
+            bmp.Save(bitmapParameters.Output ?? "./out.png");
             Console.ReadKey();
         }
 
-        private static void CreateImage(BitmapParameters bitmapParameters1, Polynomial polynomial1,
-            Polynomial polynomialDerive1, List<Complex> complexes, Bitmap bitmap, out int i)
-        {
-            int maxid1 = 0;
-            for (i = 0; i < bitmapParameters1.Width; i++)
-            {
-                for (int j = 0; j < bitmapParameters1.Height; j++)
-                {
-                    // find "world" coordinates of pixel
-                    double y = bitmapParameters1.YMin + i * bitmapParameters1.YStep;
-                    double x = bitmapParameters1.XMin + j * bitmapParameters1.XStep;
+        private static Bitmap CreateImage(BitmapParameters parameters, Polynomial polynomial) {
+            List<Complex> roots = new List<Complex>();
+            Bitmap bmp = new Bitmap(parameters.Width, parameters.Height);
 
-                    Complex ox = new Complex
-                    {
-                        RealPart = x,
-                        ImaginaryPart = y
+            int maxid1 = 0;
+            for (int xIndex = 0; xIndex < parameters.Width; xIndex++)
+            {
+                for (int yIndex = 0; yIndex < parameters.Height; yIndex++)
+                {
+                    double pixelX = parameters.XMin + yIndex * parameters.XStep;
+                    double pixelY = parameters.YMin + xIndex * parameters.YStep;
+                    
+
+                    Complex ox = new Complex {
+                        RealPart = pixelX,
+                        ImaginaryPart = pixelY
                     };
 
-                    if (ox.RealPart == 0)
-                        ox.RealPart = 0.0001;
-                    if (ox.ImaginaryPart == 0)
-                        ox.ImaginaryPart = 0.0001f;
-
-                    //Console.WriteLine(ox);
-
                     // find solution of equation using newton's iteration
-                    int it = 0;
-                    for (int q = 0; q < 30; q++)
-                    {
-                        var diff = polynomial1.Evaluate(ox).Divide(polynomialDerive1.Evaluate(ox));
-                        ox = ox.Subtract(diff);
-
-                        //Console.WriteLine($"{q} {ox} -({diff})");
-                        if (Math.Pow(diff.RealPart, 2) + Math.Pow(diff.ImaginaryPart, 2) >= 0.5)
-                        {
-                            q--;
-                        }
-
-                        it++;
-                    }
+                    var it = EquationNewtonsIteration(polynomial, ref ox);
 
                     //Console.ReadKey();
 
                     // find solution root number
                     var known = false;
                     var id = 0;
-                    for (int w = 0; w < complexes.Count; w++)
+                    for (int w = 0; w < roots.Count; w++)
                     {
-                        if (Math.Pow(ox.RealPart - complexes[w].RealPart, 2) +
-                            Math.Pow(ox.ImaginaryPart - complexes[w].ImaginaryPart, 2) <= 0.01)
+                        if (Math.Pow(ox.RealPart - roots[w].RealPart, 2) +
+                            Math.Pow(ox.ImaginaryPart - roots[w].ImaginaryPart, 2) <= 0.01)
                         {
                             known = true;
                             id = w;
@@ -116,24 +80,48 @@ namespace INPTPZ1
 
                     if (!known)
                     {
-                        complexes.Add(ox);
-                        id = complexes.Count;
+                        roots.Add(ox);
+                        id = roots.Count;
                         maxid1 = id + 1;
                     }
 
                     // colorize pixel according to root number
                     //int vv = id;
                     //int vv = id * 50 + (int)it*5;
-                    var vv = InitialColors[id % InitialColors.Length];
+                    var vv = ColorPalette[id % ColorPalette.Length];
                     vv = Color.FromArgb(vv.R, vv.G, vv.B);
                     vv = Color.FromArgb(Math.Min(Math.Max(0, vv.R - (int) it * 2), 255),
                         Math.Min(Math.Max(0, vv.G - (int) it * 2), 255),
                         Math.Min(Math.Max(0, vv.B - (int) it * 2), 255));
                     //vv = Math.Min(Math.Max(0, vv), 255);
-                    bitmap.SetPixel(j, i, vv);
+                    bmp.SetPixel(yIndex, xIndex, vv);
                     //bmp.SetPixel(j, i, Color.FromArgb(vv, vv, vv));
                 }
             }
+
+            return bmp;
+        }
+
+        private static int EquationNewtonsIteration(Polynomial polynomial, ref Complex ox)
+        {
+            int it = 0;
+            Polynomial polynomialDerive = polynomial.Derive();
+            
+            for (int q = 0; q < NewtonUpperIteration; q++)
+            {
+                var diff = polynomial.Evaluate(ox).Divide(polynomialDerive.Evaluate(ox));
+                ox = ox.Subtract(diff);
+
+                //Console.WriteLine($"{q} {ox} -({diff})");
+                if (Math.Pow(diff.RealPart, 2) + Math.Pow(diff.ImaginaryPart, 2) >= 0.5)
+                {
+                    q--;
+                }
+
+                it++;
+            }
+
+            return it;
         }
 
         private static BitmapParameters ParseBitmapParametersFromCommandLine(string[] arguments)

@@ -7,7 +7,7 @@ namespace INPTPZ1.Mathematics
         public double RealPart { get; set; }
         public double ImaginaryPart { get; set; }
         
-        private static readonly double TOLERANCE = 0.1f;
+        private const double Tolerance = 0.1f;
 
         public static readonly Complex Zero = new Complex {RealPart = 0, ImaginaryPart = 0};
 
@@ -68,8 +68,8 @@ namespace INPTPZ1.Mathematics
         public override bool Equals(object obj)
         {
             if (obj is Complex complex)
-                return Math.Abs(complex.RealPart - RealPart) < TOLERANCE && 
-                       Math.Abs(complex.ImaginaryPart - ImaginaryPart) < TOLERANCE;
+                return Math.Abs(complex.RealPart - RealPart) < Tolerance && 
+                       Math.Abs(complex.ImaginaryPart - ImaginaryPart) < Tolerance;
             return base.Equals(obj);
         }
         
