@@ -29,9 +29,11 @@ namespace INPTPZ1
             Color.Fuchsia, Color.Gold, Color.Cyan, Color.Magenta
         };
 
+        private static readonly double NewtonsIterationToleration = 0.5;
+
         static void Main(string[] args)
         {
-            var bitmapParameters = ParseBitmapParametersFromCommandLine(args);
+            BitmapParameters bitmapParameters = ParseBitmapParametersFromCommandLine(args);
             
             Polynomial polynomial = new Polynomial();
             polynomial.Complexes.AddRange(Initial());
@@ -39,6 +41,7 @@ namespace INPTPZ1
             Bitmap bmp = CreateImage(bitmapParameters, polynomial);
             
             bmp.Save(bitmapParameters.Output ?? "./out.png");
+            
             Console.ReadKey();
         }
 
@@ -46,7 +49,6 @@ namespace INPTPZ1
             List<Complex> roots = new List<Complex>();
             Bitmap bmp = new Bitmap(parameters.Width, parameters.Height);
 
-            int maxid1 = 0;
             for (int xIndex = 0; xIndex < parameters.Width; xIndex++)
             {
                 for (int yIndex = 0; yIndex < parameters.Height; yIndex++)
@@ -55,73 +57,69 @@ namespace INPTPZ1
                     double pixelY = parameters.YMin + xIndex * parameters.YStep;
                     
 
-                    Complex ox = new Complex {
+                    Complex pixelCoordinates = new Complex {
                         RealPart = pixelX,
                         ImaginaryPart = pixelY
                     };
 
-                    // find solution of equation using newton's iteration
-                    var it = EquationNewtonsIteration(polynomial, ref ox);
-
-                    //Console.ReadKey();
-
-                    // find solution root number
-                    var known = false;
-                    var id = 0;
-                    for (int w = 0; w < roots.Count; w++)
-                    {
-                        if (Math.Pow(ox.RealPart - roots[w].RealPart, 2) +
-                            Math.Pow(ox.ImaginaryPart - roots[w].ImaginaryPart, 2) <= 0.01)
-                        {
-                            known = true;
-                            id = w;
-                        }
-                    }
-
-                    if (!known)
-                    {
-                        roots.Add(ox);
-                        id = roots.Count;
-                        maxid1 = id + 1;
-                    }
-
-                    // colorize pixel according to root number
-                    //int vv = id;
-                    //int vv = id * 50 + (int)it*5;
-                    var vv = ColorPalette[id % ColorPalette.Length];
-                    vv = Color.FromArgb(vv.R, vv.G, vv.B);
-                    vv = Color.FromArgb(Math.Min(Math.Max(0, vv.R - (int) it * 2), 255),
-                        Math.Min(Math.Max(0, vv.G - (int) it * 2), 255),
-                        Math.Min(Math.Max(0, vv.B - (int) it * 2), 255));
-                    //vv = Math.Min(Math.Max(0, vv), 255);
-                    bmp.SetPixel(yIndex, xIndex, vv);
-                    //bmp.SetPixel(j, i, Color.FromArgb(vv, vv, vv));
+                    int iteration = EquationNewtonsIteration(polynomial, ref pixelCoordinates);
+                    int rootNumber = RootNumber(roots, pixelCoordinates);
+                    
+                    var color = PickColor(rootNumber, iteration);
+                    bmp.SetPixel(yIndex, xIndex, color);
                 }
             }
 
             return bmp;
         }
 
-        private static int EquationNewtonsIteration(Polynomial polynomial, ref Complex ox)
+        private static Color PickColor(int rootNumber, int iteration)
         {
-            int it = 0;
-            Polynomial polynomialDerive = polynomial.Derive();
+            Color color = ColorPalette[rootNumber % ColorPalette.Length];
             
-            for (int q = 0; q < NewtonUpperIteration; q++)
+            color = Color.FromArgb(color.R, color.G, color.B);
+            
+            color = Color.FromArgb(Math.Min(Math.Max(0, color.R - iteration * 2), 255),
+                Math.Min(Math.Max(0, color.G - iteration * 2), 255),
+                Math.Min(Math.Max(0, color.B - iteration * 2), 255));
+            
+            return color;
+        }
+
+        private static int RootNumber(List<Complex> roots, Complex pixelCoordinates) {
+            int rootNumber = 0;
+
+            for (; rootNumber < roots.Count; rootNumber++)
             {
-                var diff = polynomial.Evaluate(ox).Divide(polynomialDerive.Evaluate(ox));
-                ox = ox.Subtract(diff);
-
-                //Console.WriteLine($"{q} {ox} -({diff})");
-                if (Math.Pow(diff.RealPart, 2) + Math.Pow(diff.ImaginaryPart, 2) >= 0.5)
-                {
-                    q--;
+                if (pixelCoordinates.IsRoot(roots[rootNumber])) {
+                    roots.Add(pixelCoordinates);
+                    rootNumber = roots.Count;
+                    break;
                 }
+            }
+            
+            return rootNumber;
+        }
 
-                it++;
+        private static int EquationNewtonsIteration(Polynomial polynomial, ref Complex pixelCoordinates)
+        {
+            Polynomial polynomialDerive = polynomial.Derive();
+            int iteration = 0;
+            
+            for (int lower = 0; lower < NewtonUpperIteration; lower++, iteration++)
+            {
+                Complex polynomialEvaluation = polynomial.Evaluate(pixelCoordinates);
+                Complex polynomialDeriveEvaluation = polynomialDerive.Evaluate(pixelCoordinates);
+                
+                Complex difference = polynomialEvaluation.Divide(polynomialDeriveEvaluation);
+                
+                pixelCoordinates = pixelCoordinates.Subtract(difference);
+                
+                if (difference.Pow() >= NewtonsIterationToleration) 
+                    lower--;
             }
 
-            return it;
+            return iteration;
         }
 
         private static BitmapParameters ParseBitmapParametersFromCommandLine(string[] arguments)

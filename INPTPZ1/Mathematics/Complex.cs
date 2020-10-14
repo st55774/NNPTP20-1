@@ -10,6 +10,10 @@ namespace INPTPZ1.Mathematics
         private const double Tolerance = 0.1f;
 
         public static readonly Complex Zero = new Complex {RealPart = 0, ImaginaryPart = 0};
+        
+        private const double RootToleration = 0.01;
+
+        private const int Exponent = 2;
 
         public Complex Add(Complex adder)
         {
@@ -51,13 +55,23 @@ namespace INPTPZ1.Mathematics
         
         public double Abs()
         {
-            var exponent = 2;
-            return Math.Sqrt( Math.Pow(RealPart, exponent) + Math.Pow(RealPart, exponent));
+            return Math.Sqrt( Math.Pow(RealPart, Exponent) + Math.Pow(RealPart, Exponent));
         }
         
         public double Angle()
         {
             return Math.Atan(ImaginaryPart / RealPart);
+        }
+
+        public double Pow()
+        {
+            return Math.Pow(RealPart, Exponent) + Math.Pow(ImaginaryPart, Exponent);
+        }
+
+        public bool IsRoot(Complex root)
+        {
+            return Math.Pow(RealPart - root.RealPart, Exponent) + 
+                Math.Pow(ImaginaryPart - root.ImaginaryPart, Exponent) <= RootToleration;
         }
 
         public override string ToString()
