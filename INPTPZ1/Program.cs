@@ -66,7 +66,7 @@ namespace INPTPZ1
                     int rootNumber = RootNumber(roots, pixelCoordinates);
                     
                     var color = PickColor(rootNumber, iteration);
-                    bmp.SetPixel(yIndex, xIndex, color);
+                    bmp.SetPixel(xIndex, yIndex, color);
                 }
             }
 

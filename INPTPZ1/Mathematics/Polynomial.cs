@@ -10,12 +10,13 @@ namespace INPTPZ1.Mathematics
         public Polynomial Derive() {
             Polynomial derived = new Polynomial();
             int index = 1;
-            
-            Complexes.GetRange(index, Complexes.Count).ForEach(current => {
-                Complex multiple = new Complex {RealPart = index++, ImaginaryPart = 0};
-                derived.Complexes.Add(current.Multiply(multiple));
-            });
 
+            if (index < Complexes.Count)
+                Complexes.GetRange(index, Complexes.Count-1).ForEach(current => {
+                    Complex multiple = new Complex {RealPart = index++, ImaginaryPart = 0};
+                    derived.Complexes.Add(current.Multiply(multiple));
+                });
+            
             return derived;
         }
 
