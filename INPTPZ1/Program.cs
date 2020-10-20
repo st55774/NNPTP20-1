@@ -24,7 +24,8 @@ namespace INPTPZ1
             };
         }
 
-        private static readonly Color[] ColorPalette = {
+        private static readonly Color[] ColorPalette =
+        {
             Color.Red, Color.Blue, Color.Green, Color.Yellow, Color.Orange,
             Color.Fuchsia, Color.Gold, Color.Cyan, Color.Magenta
         };
@@ -34,18 +35,19 @@ namespace INPTPZ1
         static void Main(string[] args)
         {
             BitmapParameters bitmapParameters = ParseBitmapParametersFromCommandLine(args);
-            
+
             Polynomial polynomial = new Polynomial();
             polynomial.Complexes.AddRange(Initial());
 
             Bitmap bmp = CreateImage(bitmapParameters, polynomial);
-            
+
             bmp.Save(bitmapParameters.Output ?? "./out.png");
-            
-            Console.ReadKey();
+
+            //Console.ReadKey();
         }
 
-        private static Bitmap CreateImage(BitmapParameters parameters, Polynomial polynomial) {
+        private static Bitmap CreateImage(BitmapParameters parameters, Polynomial polynomial)
+        {
             List<Complex> roots = new List<Complex>();
             Bitmap bmp = new Bitmap(parameters.Width, parameters.Height);
 
@@ -55,18 +57,19 @@ namespace INPTPZ1
                 {
                     double pixelX = parameters.XMin + yIndex * parameters.XStep;
                     double pixelY = parameters.YMin + xIndex * parameters.YStep;
-                    
 
-                    Complex pixelCoordinates = new Complex {
+
+                    Complex pixelCoordinates = new Complex
+                    {
                         RealPart = pixelX,
                         ImaginaryPart = pixelY
                     };
 
                     int iteration = EquationNewtonsIteration(polynomial, ref pixelCoordinates);
                     int rootNumber = RootNumber(roots, pixelCoordinates);
-                    
+
                     var color = PickColor(rootNumber, iteration);
-                    bmp.SetPixel(xIndex, yIndex, color);
+                    bmp.SetPixel(yIndex, xIndex, color);
                 }
             }
 
@@ -76,46 +79,39 @@ namespace INPTPZ1
         private static Color PickColor(int rootNumber, int iteration)
         {
             Color color = ColorPalette[rootNumber % ColorPalette.Length];
-            
-            color = Color.FromArgb(color.R, color.G, color.B);
-            
+
             color = Color.FromArgb(Math.Min(Math.Max(0, color.R - iteration * 2), 255),
                 Math.Min(Math.Max(0, color.G - iteration * 2), 255),
                 Math.Min(Math.Max(0, color.B - iteration * 2), 255));
-            
+
             return color;
         }
 
-        private static int RootNumber(List<Complex> roots, Complex pixelCoordinates) {
-            int rootNumber = 0;
-
-            for (; rootNumber < roots.Count; rootNumber++)
-            {
-                if (pixelCoordinates.IsRoot(roots[rootNumber])) {
-                    roots.Add(pixelCoordinates);
-                    rootNumber = roots.Count;
-                    break;
-                }
-            }
+        private static int RootNumber(List<Complex> roots, Complex pixelCoordinates)
+        {
+            for (int i = 0; i < roots.Count; i++)
+                if (pixelCoordinates.IsRoot(roots[i]))
+                    return i;
             
-            return rootNumber;
+            roots.Add(pixelCoordinates);
+            return roots.Count;
         }
 
         private static int EquationNewtonsIteration(Polynomial polynomial, ref Complex pixelCoordinates)
         {
             Polynomial polynomialDerive = polynomial.Derive();
             int iteration = 0;
-            
+
             for (int lower = 0; lower < NewtonUpperIteration; lower++, iteration++)
             {
                 Complex polynomialEvaluation = polynomial.Evaluate(pixelCoordinates);
                 Complex polynomialDeriveEvaluation = polynomialDerive.Evaluate(pixelCoordinates);
-                
+
                 Complex difference = polynomialEvaluation.Divide(polynomialDeriveEvaluation);
-                
+
                 pixelCoordinates = pixelCoordinates.Subtract(difference);
-                
-                if (difference.Pow() >= NewtonsIterationToleration) 
+
+                if (difference.Pow() >= NewtonsIterationToleration)
                     lower--;
             }
 
@@ -128,10 +124,10 @@ namespace INPTPZ1
 
             parameters.Width = Int32.Parse(arguments[0]);
             parameters.Height = Int32.Parse(arguments[1]);
-            parameters.XMin = Int32.Parse(arguments[2]);
-            parameters.XMax = Int32.Parse(arguments[3]);
-            parameters.YMin = Int32.Parse(arguments[4]);
-            parameters.YMax = Int32.Parse(arguments[5]);
+            parameters.XMin = Double.Parse(arguments[2]);
+            parameters.XMax = Double.Parse(arguments[3]);
+            parameters.YMin = Double.Parse(arguments[4]);
+            parameters.YMax = Double.Parse(arguments[5]);
             parameters.Output = arguments[6];
 
             return parameters;

@@ -23,8 +23,8 @@
             }
         }
 
-        private int _xmax;
-        public int XMax {
+        private double _xmax;
+        public double XMax {
             get => _xmax;
             set {
                 _xmax = value;
@@ -32,8 +32,8 @@
             }
         }
 
-        private int _xmin;
-        public int XMin {
+        private double _xmin;
+        public double XMin {
             get => _xmin;
             set {
                 _xmin = value;
@@ -41,8 +41,8 @@
             }
         }
 
-        private int _ymin;
-        public int YMin {
+        private double _ymin;
+        public double YMin {
             get => _ymin;
             set {
                 _ymin = value;
@@ -50,8 +50,8 @@
             }
         }
 
-        private int _ymax;
-        public int YMax {
+        private double _ymax;
+        public double YMax {
             get => _ymax;
             set {
                 _ymax = value;
@@ -61,15 +61,15 @@
         
         public string Output { get; set; }
         
-        public int XStep { get; private set; }
+        public double XStep { get; private set; }
         
-        public int YStep { get; private set; }
+        public double YStep { get; private set; }
 
-        private int CalculateXStep() {
+        private double CalculateXStep() {
             return (XMax - XMin) / Width;
         }
         
-        private int CalculateYStep() {
+        private double CalculateYStep() {
             return (YMax - YMin) / Height;
         }
     }
