@@ -43,9 +43,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BitmapImage\BitmapParameters.cs" />
     <Compile Include="Mathematics\Complex.cs" />
     <Compile Include="Mathematics\Polynomial.cs" />
+    <Compile Include="NewtonFractals\NewtonFractalsManager.cs" />
+    <Compile Include="Parameters\BitmapParameters.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

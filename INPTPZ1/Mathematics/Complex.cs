@@ -52,16 +52,6 @@ namespace INPTPZ1.Mathematics
                 ImaginaryPart = dividendResult.ImaginaryPart / divisorResult
             };
         }
-        
-        public double Abs()
-        {
-            return Math.Sqrt( Math.Pow(RealPart, Exponent) + Math.Pow(RealPart, Exponent));
-        }
-        
-        public double Angle()
-        {
-            return Math.Atan(ImaginaryPart / RealPart);
-        }
 
         public double Pow()
         {
@@ -85,14 +75,6 @@ namespace INPTPZ1.Mathematics
                 return Math.Abs(complex.RealPart - RealPart) < Tolerance && 
                        Math.Abs(complex.ImaginaryPart - ImaginaryPart) < Tolerance;
             return base.Equals(obj);
-        }
-        
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (RealPart.GetHashCode() * 397) ^ ImaginaryPart.GetHashCode();
-            }
         }
     }
 }

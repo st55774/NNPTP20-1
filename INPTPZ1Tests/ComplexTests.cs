@@ -1,4 +1,5 @@
 ﻿using INPTPZ1.Mathematics;
+using NewtonFractals.Mathematics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace INPTPZ1Tests

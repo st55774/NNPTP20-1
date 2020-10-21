@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using INPTPZ1.Mathematics;
 
-namespace INPTPZ1.Mathematics
+namespace NewtonFractals.Mathematics
 {
     public class Polynomial
     {
