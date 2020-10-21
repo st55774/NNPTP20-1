@@ -4,7 +4,7 @@ namespace INPTPZ1.Parameters
 {
     public class BitmapParameters
     {
-        private int _width;
+        private int _width = DefaultResolution;
         
         public int Width
         {
@@ -15,7 +15,7 @@ namespace INPTPZ1.Parameters
             }
         }
 
-        private int _height;
+        private int _height = DefaultResolution;
         
         public int Height {
             get => _height;
@@ -25,7 +25,7 @@ namespace INPTPZ1.Parameters
             }
         }
 
-        private double _xmax;
+        private double _xmax = DefaultNewtonsFractalsMax;
         public double XMax {
             get => _xmax;
             set {
@@ -34,7 +34,7 @@ namespace INPTPZ1.Parameters
             }
         }
 
-        private double _xmin;
+        private double _xmin = DefaultNewtonsFractalsMin;
         public double XMin {
             get => _xmin;
             set {
@@ -43,7 +43,7 @@ namespace INPTPZ1.Parameters
             }
         }
 
-        private double _ymin;
+        private double _ymin = DefaultNewtonsFractalsMin;
         public double YMin {
             get => _ymin;
             set {
@@ -52,7 +52,7 @@ namespace INPTPZ1.Parameters
             }
         }
 
-        private double _ymax;
+        private double _ymax = DefaultNewtonsFractalsMax;
         public double YMax {
             get => _ymax;
             set {
@@ -83,12 +83,28 @@ namespace INPTPZ1.Parameters
 
         private static readonly string DefaultFileLocation = "./out.png";
         
+        private static readonly int WidthParameterIndex = 0;
+        
+        private static readonly int HeightParameterIndex = 1;
+        
+        private static readonly int XMinParameterIndex = 2;
+        
+        private static readonly int XMaxParameterIndex = 3;
+        
+        private static readonly int YMinParameterIndex = 4;
+        
+        private static readonly int YMaxParameterIndex = 5;
+        
+        private static readonly int ImageParameterIndex = 6;
+
         public static BitmapParameters ParseParameters(string[] arguments)
         {
             BitmapParameters parameters = new BitmapParameters();
 
-            parameters.Width = Int32.TryParse(arguments[0], out int width) ? width : DefaultResolution;
-            parameters.Height = Int32.TryParse(arguments[1], out int height) ? height : DefaultResolution;
+            if(arguments.Length > WidthParameterIndex)
+                parameters.Width = Int32.TryParse(arguments[WidthParameterIndex], out int width) ? width : DefaultResolution;
+            if(arguments.Length > HeightParameterIndex)
+                parameters.Height = Int32.TryParse(arguments[HeightParameterIndex], out int height) ? height : DefaultResolution;
 
             ParseNewtonFractalsParameters(arguments, parameters);
             ParseOutputImageFile(arguments, parameters);
@@ -97,15 +113,23 @@ namespace INPTPZ1.Parameters
         }
         private static void ParseNewtonFractalsParameters(string[] arguments, BitmapParameters parameters)
         {
-            parameters.XMin = Double.TryParse(arguments[2], out double xmin) ? xmin : DefaultNewtonsFractalsMin;
-            parameters.XMax = Double.TryParse(arguments[3], out double xman) ? xman : DefaultNewtonsFractalsMax;
-            parameters.YMin = Double.TryParse(arguments[4], out double ymin) ? ymin : DefaultNewtonsFractalsMin;
-            parameters.YMax = Double.TryParse(arguments[5], out double ymax) ? ymax : DefaultNewtonsFractalsMax;
+            if(arguments.Length > XMinParameterIndex)
+                parameters.XMin = Double.TryParse(arguments[XMinParameterIndex], out double xmin) ? xmin : DefaultNewtonsFractalsMin;
+            
+            if(arguments.Length > XMaxParameterIndex)
+                parameters.XMax = Double.TryParse(arguments[XMaxParameterIndex], out double xman) ? xman : DefaultNewtonsFractalsMax;
+            
+            if(arguments.Length > YMinParameterIndex)
+                parameters.YMin = Double.TryParse(arguments[YMinParameterIndex], out double ymin) ? ymin : DefaultNewtonsFractalsMin;
+            
+            if(arguments.Length > YMaxParameterIndex)
+                parameters.YMax = Double.TryParse(arguments[YMaxParameterIndex], out double ymax) ? ymax : DefaultNewtonsFractalsMax;
         }
 
         private static void ParseOutputImageFile(string[] arguments, BitmapParameters parameters)
         {
-            parameters.Output =  arguments[6] ?? DefaultFileLocation;
+            if (arguments.Length > ImageParameterIndex)
+                parameters.Output = arguments[ImageParameterIndex];
         }
     }
 }

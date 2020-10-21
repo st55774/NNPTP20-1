@@ -76,5 +76,18 @@ namespace INPTPZ1.Mathematics
                        Math.Abs(complex.ImaginaryPart - ImaginaryPart) < Tolerance;
             return base.Equals(obj);
         }
+
+        protected bool Equals(Complex other)
+        {
+            return RealPart.Equals(other.RealPart) && ImaginaryPart.Equals(other.ImaginaryPart);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (RealPart.GetHashCode() * 397) ^ ImaginaryPart.GetHashCode();
+            }
+        }
     }
 }
