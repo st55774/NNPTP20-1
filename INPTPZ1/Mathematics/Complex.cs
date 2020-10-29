@@ -66,15 +66,9 @@ namespace INPTPZ1.Mathematics
         public override bool Equals(object obj)
         {
             if (obj is Complex complex)
-                return Math.Abs(complex.RealPart - RealPart) < Tolerance && 
-                       Math.Abs(complex.ImaginaryPart - ImaginaryPart) < Tolerance;
+                return Math.Pow(RealPart - complex.RealPart, Exponent) + 
+                    Math.Pow(ImaginaryPart - complex.ImaginaryPart, Exponent) <= RootToleration;
             return base.Equals(obj);
-        }
-
-        public bool Equals(Complex other)
-        {
-            return Math.Pow(RealPart - other.RealPart, Exponent) + 
-                Math.Pow(ImaginaryPart - other.ImaginaryPart, Exponent) <= RootToleration;
         }
 
         public override int GetHashCode()
