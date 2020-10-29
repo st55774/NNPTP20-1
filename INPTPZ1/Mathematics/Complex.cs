@@ -58,12 +58,6 @@ namespace INPTPZ1.Mathematics
             return Math.Pow(RealPart, Exponent) + Math.Pow(ImaginaryPart, Exponent);
         }
 
-        public bool IsRoot(Complex root)
-        {
-            return Math.Pow(RealPart - root.RealPart, Exponent) + 
-                Math.Pow(ImaginaryPart - root.ImaginaryPart, Exponent) <= RootToleration;
-        }
-
         public override string ToString()
         {
             return $"({RealPart:+#;-#;0.00} {ImaginaryPart:+#;-#;0.00}i)";
@@ -77,9 +71,10 @@ namespace INPTPZ1.Mathematics
             return base.Equals(obj);
         }
 
-        protected bool Equals(Complex other)
+        public bool Equals(Complex other)
         {
-            return RealPart.Equals(other.RealPart) && ImaginaryPart.Equals(other.ImaginaryPart);
+            return Math.Pow(RealPart - other.RealPart, Exponent) + 
+                Math.Pow(ImaginaryPart - other.ImaginaryPart, Exponent) <= RootToleration;
         }
 
         public override int GetHashCode()

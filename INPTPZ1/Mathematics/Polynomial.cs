@@ -27,14 +27,14 @@ namespace NewtonFractals.Mathematics
             int level = 0;
             
             Complexes.ForEach(coefficient => {
-                evaluated = evaluated.Add(level > 0 ? CalculateCoefficientToAdd(coefficient, evaluation,level) : coefficient);
+                evaluated = evaluated.Add(level > 0 ? CoefficientMultiplication(coefficient, evaluation,level) : coefficient);
                 level++;
             });
 
             return evaluated;
         }
 
-        private static Complex CalculateCoefficientToAdd(Complex coefficient, Complex evaluation, int level)
+        private static Complex CoefficientMultiplication(Complex coefficient, Complex evaluation, int level)
         {
             Complex evaluationIndex = evaluation;
             

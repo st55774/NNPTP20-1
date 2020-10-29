@@ -25,7 +25,7 @@ namespace INPTPZ1.NewtonFractals
 
         private const int NewtonUpperIteration = 30;
 
-        private static List<Complex> Initial()
+        private static List<Complex> Examined()
         {
             return new List<Complex>
             {
@@ -41,7 +41,7 @@ namespace INPTPZ1.NewtonFractals
             Bitmap bmp = new Bitmap(parameters.Width, parameters.Height);
             
             Polynomial polynomial = new Polynomial();
-            polynomial.Complexes.AddRange(Initial());
+            polynomial.Complexes.AddRange(Examined());
 
             for (int xIndex = 0; xIndex < parameters.Width; xIndex++)
             {
@@ -82,7 +82,7 @@ namespace INPTPZ1.NewtonFractals
         private int RootNumber(List<Complex> roots, Complex pixelCoordinates)
         {
             for (int i = 0; i < roots.Count; i++)
-                if (pixelCoordinates.IsRoot(roots[i]))
+                if (pixelCoordinates.Equals(roots[i]))
                     return i;
             
             roots.Add(pixelCoordinates);
